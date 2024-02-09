@@ -1,12 +1,21 @@
 package com.booleanuk.api.cinema.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 
+/**
+ * Class holding information about a screening
+ */
+@NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "screenings")
 public class Screening {
