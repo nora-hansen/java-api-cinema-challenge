@@ -1,5 +1,8 @@
 package com.booleanuk.api.cinema.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,13 +41,14 @@ public class Movie {
 
     @Column
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     @Column
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    private Date updatedAt;
 
     @OneToMany(mappedBy = "movie")
+    @JsonIgnore
     private List<Screening> screenings;
 
     public Movie(
@@ -61,5 +66,16 @@ public class Movie {
 
     public Movie(int id)    {
         this.id = id;
+    }
+
+    public void addScreening(Screening screening)   {
+        this.screenings.add(screening);
+    }
+
+    public boolean verifyMovie() {
+        return this.getTitle() != null
+                && this.getRating() != null
+                && this.getDescription() != null
+                && this.getRuntimeMins() != 0;
     }
 }

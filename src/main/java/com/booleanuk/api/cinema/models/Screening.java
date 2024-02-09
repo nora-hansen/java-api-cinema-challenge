@@ -1,5 +1,8 @@
 package com.booleanuk.api.cinema.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +12,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * Class holding information about a screening
@@ -25,13 +29,15 @@ public class Screening {
 
     @ManyToOne
     @JoinColumn(name = "movie_id")
+    @JsonIgnore
     private Movie movie;
 
     @Column
     private int screenNumber;
 
     @Column
-    private LocalDateTime startsAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ssXXX")
+    private Date startsAt;
 
     @Column
     private int capacity;
@@ -47,7 +53,7 @@ public class Screening {
     public Screening(
             Movie movie,
             int screenNumber,
-            LocalDateTime startsAt,
+            Date startsAt,
             int capacity
     )
     {
@@ -55,5 +61,11 @@ public class Screening {
         this.screenNumber = screenNumber;
         this.startsAt     = startsAt;
         this.capacity     = capacity;
+    }
+
+    public boolean verifyScreening()    {
+        return this.getScreenNumber() != 0
+                || this.getCapacity() != 0
+                || this.getStartsAt() != null;
     }
 }
