@@ -4,6 +4,7 @@ import com.booleanuk.api.cinema.models.Movie;
 import com.booleanuk.api.cinema.models.Screening;
 import com.booleanuk.api.cinema.repositories.MovieRepository;
 import com.booleanuk.api.cinema.repositories.ScreeningRepository;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -154,10 +155,12 @@ public class MovieController {
                 .orElseThrow(
                         () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No Movie with that field found")
                 );
+        screening.setStartsAt(screening.getStartsAt());
         screening.setMovie(movieToScreen);
         movieToScreen.addScreening(screening);
         this.movieRepository.save(movieToScreen);
         this.screeningRepository.save(screening);
+        System.out.println(screening.getStartsAt());
 
         return new ResponseEntity<>(screening, HttpStatus.CREATED);
     }

@@ -39,11 +39,9 @@ public class Movie {
     @Column
     private int runtimeMins;
 
-    @Column
     @CreationTimestamp
     private Date createdAt;
 
-    @Column
     @UpdateTimestamp
     private Date updatedAt;
 

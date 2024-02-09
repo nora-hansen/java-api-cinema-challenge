@@ -1,19 +1,21 @@
 package com.booleanuk.api.cinema.models;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
+import jdk.jfr.Timestamp;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
  * Class holding information about a screening
+ * TODO
+ *  Fix returned date format
  */
 @NoArgsConstructor
 @Getter
@@ -43,10 +45,18 @@ public class Screening {
     @Column
     @CreationTimestamp
     private Date createdAt;
+    @PrePersist
+    protected void onCreate()   {
+        updatedAt = createdAt = new Date();
+    }
 
     @Column
     @UpdateTimestamp
     private Date updatedAt;
+    @PreUpdate
+    protected void onUpdate()   {
+        updatedAt = new Date();
+    }
 
     public Screening(
             Movie movie,
@@ -55,6 +65,7 @@ public class Screening {
             int capacity
     )
     {
+
         this.movie        = movie;
         this.screenNumber = screenNumber;
         this.startsAt     = startsAt;
