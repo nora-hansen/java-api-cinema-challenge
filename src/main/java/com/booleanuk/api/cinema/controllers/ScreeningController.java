@@ -15,6 +15,11 @@ import java.util.List;
 */
 
 /*
+    TODO
+        Move screening stuff here
+ */
+
+/*
 @RestController
 @RequestMapping("{id}/screenings")
 public class ScreeningController {

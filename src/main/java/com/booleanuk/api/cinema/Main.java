@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /*
     TODO
         Failure messages
-        Still check out the date formatting in th ejson
+        Still check out the date formatting in the json
         Rest of extension
  */
 @SpringBootApplication
