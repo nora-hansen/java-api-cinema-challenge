@@ -5,7 +5,6 @@ import com.booleanuk.api.cinema.models.Screening;
 import com.booleanuk.api.cinema.repositories.MovieRepository;
 import com.booleanuk.api.cinema.repositories.ScreeningRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -135,7 +134,10 @@ public class MovieController {
     /**
      * Creates a screening for the specified movie
      * Request Body:
-     *  
+     *  screenNumber: int REQUIRED
+     *  capacity: int REQUIRED
+     *  startsAt: Date REQUIRED
+     *
      * @param id - ID of movie to add screening to
      * @param screening - Screening to add
      * @return Response code signifying success/failure, and screening which was added to the database
@@ -143,11 +145,14 @@ public class MovieController {
     @PostMapping("{id}/screenings")
     public ResponseEntity<Screening> createScreening(@PathVariable int id, @RequestBody Screening screening)    {
         if(!screening.verifyScreening())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more required fields are null");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "One or more required fields are null"
+            );
 
         Movie movieToScreen = this.movieRepository.findById(id)
                 .orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Placeholder")
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No Movie with that field found")
                 );
         screening.setMovie(movieToScreen);
         movieToScreen.addScreening(screening);
@@ -156,4 +161,43 @@ public class MovieController {
 
         return new ResponseEntity<>(screening, HttpStatus.CREATED);
     }
+
+    /**
+     * ! This is not in the spec, oops. Oh well, might include later
+     * Updates a screening for the specified movie
+     * Request Body:
+     *  screenNumber: int REQUIRED
+     *  capacity: int REQUIRED
+     *  startsAt: Date REQUIRED
+     *
+     * @param id - ID of movie to add screening to
+     * @param screening - Screening to add
+     * @return Response code signifying success/failure, and screening which was added to the database
+     */
+    /*
+    @PutMapping("{id}/screenings")
+    public ResponseEntity<Screening> updateScreening(@PathVariable int id, @RequestBody Screening screening)    {
+        if(!screening.verifyScreening())
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "One or more required fields are null"
+            );
+
+        Screening screeningToUpdate = this.screeningRepository.findById(id)
+                .orElseThrow(
+                        () -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "No screening with that id found"
+                        )
+                );
+        screeningToUpdate.setScreenNumber(screening.getScreenNumber());
+        screeningToUpdate.setCapacity(screening.getCapacity());
+        screeningToUpdate.setStartsAt(screening.getStartsAt());
+
+        return new ResponseEntity<>(
+                this.screeningRepository.save(screeningToUpdate),
+                HttpStatus.CREATED
+        );
+    }
+    */
 }

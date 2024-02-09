@@ -50,4 +50,10 @@ public class Customer {
         this.email = email;
         this.phone = phone;
     }
+
+    public boolean verifyCustomer() {
+        return this.name != null
+                && this.email != null
+                && this.phone != null;
+    }
 }

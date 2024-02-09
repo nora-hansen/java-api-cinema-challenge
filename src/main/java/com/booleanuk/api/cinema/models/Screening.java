@@ -2,14 +2,12 @@ package com.booleanuk.api.cinema.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -44,11 +42,11 @@ public class Screening {
 
     @Column
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     @Column
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    private Date updatedAt;
 
     public Screening(
             Movie movie,
@@ -65,7 +63,7 @@ public class Screening {
 
     public boolean verifyScreening()    {
         return this.getScreenNumber() != 0
-                || this.getCapacity() != 0
-                || this.getStartsAt() != null;
+                && this.getCapacity() != 0
+                && this.getStartsAt() != null;
     }
 }
