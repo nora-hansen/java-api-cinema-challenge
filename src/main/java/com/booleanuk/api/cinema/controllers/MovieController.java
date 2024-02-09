@@ -4,6 +4,7 @@ import com.booleanuk.api.cinema.models.Movie;
 import com.booleanuk.api.cinema.models.Screening;
 import com.booleanuk.api.cinema.repositories.MovieRepository;
 import com.booleanuk.api.cinema.repositories.ScreeningRepository;
+import com.booleanuk.api.cinema.responses.ResponseHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,8 +33,12 @@ public class MovieController {
      * @return List of Movie objects
      */
     @GetMapping
-    public List<Movie> getAllMovies()   {
-        return this.movieRepository.findAll();
+    public ResponseEntity<Object> getAllMovies()   {
+        return ResponseHandler.generateResponse(
+                "Success",
+                HttpStatus.OK,
+                this.movieRepository.findAll()
+                );
     }
 
     /**
@@ -49,11 +54,14 @@ public class MovieController {
      * @see Movie::verifyMovie()
      */
     @PostMapping
-    public ResponseEntity<Movie> createMovie(@RequestBody Movie movie)  {
+    public ResponseEntity<Object> createMovie(@RequestBody Movie movie)  {
         if(!movie.verifyMovie())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more required fields are null");
 
-        return new ResponseEntity<>(this.movieRepository.save(movie), HttpStatus.CREATED);
+        return ResponseHandler.generateResponse(
+                "Success",
+                HttpStatus.CREATED,
+                movie);
     }
 
     /**
@@ -70,7 +78,7 @@ public class MovieController {
      * @see Movie::verifyMovie()
      */
     @PutMapping("{id}")
-    public ResponseEntity<Movie> updateMovie(@PathVariable int id, @RequestBody Movie movie)    {
+    public ResponseEntity<Object> updateMovie(@PathVariable int id, @RequestBody Movie movie)    {
         if(!movie.verifyMovie())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more required fields null");
 
@@ -86,9 +94,10 @@ public class MovieController {
         movieToUpdate.setDescription(movie.getDescription());
         movieToUpdate.setRuntimeMins(movie.getRuntimeMins());
 
-        return new ResponseEntity<>(
-                this.movieRepository.save(movieToUpdate),
-                HttpStatus.CREATED
+        return ResponseHandler.generateResponse(
+                "Success",
+                HttpStatus.CREATED,
+                movieToUpdate
         );
     }
 
@@ -99,7 +108,7 @@ public class MovieController {
      * @return Response code signifying success/failure, and movie which was deleted
      */
     @DeleteMapping("{id}")
-    public ResponseEntity<Movie> deleteMovie(@PathVariable int id)  {
+    public ResponseEntity<Object> deleteMovie(@PathVariable int id)  {
         Movie movieToDelete = this.movieRepository.findById(id)
                 .orElseThrow(
                         () -> new ResponseStatusException(
@@ -108,7 +117,12 @@ public class MovieController {
                                 )
                 );
         this.movieRepository.delete(movieToDelete);
-        return ResponseEntity.ok(movieToDelete);
+
+        return ResponseHandler.generateResponse(
+                "Success",
+                HttpStatus.CREATED,
+                movieToDelete
+        );
     }
 
     //
@@ -121,7 +135,7 @@ public class MovieController {
      * @return List of Screening objects
      */
     @GetMapping("{id}/screenings")
-    public ResponseEntity<List<Screening>> getOneMovie(@PathVariable int id)  {
+    public ResponseEntity<Object> getOneMovie(@PathVariable int id)  {
         Movie movie = this.movieRepository.findById(id)
                 .orElseThrow(
                         () -> new ResponseStatusException(
@@ -129,7 +143,11 @@ public class MovieController {
                                 "Movie with id not found")
                 );
 
-        return ResponseEntity.ok(movie.getScreenings());
+        return ResponseHandler.generateResponse(
+                "Success",
+                HttpStatus.OK,
+                movie
+        );
     }
 
     /**
@@ -144,7 +162,7 @@ public class MovieController {
      * @return Response code signifying success/failure, and screening which was added to the database
      */
     @PostMapping("{id}/screenings")
-    public ResponseEntity<Screening> createScreening(@PathVariable int id, @RequestBody Screening screening)    {
+    public ResponseEntity<Object> createScreening(@PathVariable int id, @RequestBody Screening screening)    {
         if(!screening.verifyScreening())
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -162,7 +180,11 @@ public class MovieController {
         this.screeningRepository.save(screening);
         System.out.println(screening.getStartsAt());
 
-        return new ResponseEntity<>(screening, HttpStatus.CREATED);
+        return ResponseHandler.generateResponse(
+                "Success",
+                HttpStatus.CREATED,
+                screening
+        );
     }
 
     /**
@@ -202,5 +224,5 @@ public class MovieController {
                 HttpStatus.CREATED
         );
     }
-    */
+
 }

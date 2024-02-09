@@ -3,6 +3,7 @@ package com.booleanuk.api.cinema.controllers;
 import com.booleanuk.api.cinema.models.Customer;
 import com.booleanuk.api.cinema.models.Movie;
 import com.booleanuk.api.cinema.repositories.CustomerRepository;
+import com.booleanuk.api.cinema.responses.ResponseHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +23,12 @@ public class CustomerController {
      * @return List of Customer objects
      */
     @GetMapping
-    public List<Customer> getAllCustomers() {
-        return this.customerRepository.findAll();
+    public ResponseEntity<Object> getAllCustomers() {
+        return ResponseHandler.generateResponse(
+                "Success",
+                HttpStatus.OK,
+                this.customerRepository.findAll()
+        );
     }
 
     /**
@@ -37,16 +42,17 @@ public class CustomerController {
      * @return Response signifying success/failure, and the customer which was added to the database
      */
     @PostMapping
-    public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer)  {
+    public ResponseEntity<Object> createCustomer(@RequestBody Customer customer)  {
         if(!customer.verifyCustomer())
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "One or more required fields are null"
             );
-
-        return new ResponseEntity<>(
-                this.customerRepository.save(customer),
-                HttpStatus.CREATED
+        this.customerRepository.save(customer);
+        return ResponseHandler.generateResponse(
+                "Success",
+                HttpStatus.CREATED,
+                customer
         );
     }
 
@@ -61,7 +67,7 @@ public class CustomerController {
      * @return Response signifying success/failure, and the customer which was added to the database
      */
     @PutMapping("{id}")
-    public ResponseEntity<Customer> updateCustomer(@PathVariable int id, @RequestBody Customer customer)    {
+    public ResponseEntity<Object> updateCustomer(@PathVariable int id, @RequestBody Customer customer)    {
         if(!customer.verifyCustomer())
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -79,14 +85,15 @@ public class CustomerController {
         customerToUpdate.setEmail(customer.getEmail());
         customerToUpdate.setPhone(customer.getPhone());
 
-        return new ResponseEntity<>(
-                this.customerRepository.save(customerToUpdate),
-                HttpStatus.CREATED
+        return ResponseHandler.generateResponse(
+                "Success",
+                HttpStatus.CREATED,
+                this.customerRepository.save(customerToUpdate)
         );
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Customer> deleteCustomer(@PathVariable int id)    {
+    public ResponseEntity<Object> deleteCustomer(@PathVariable int id)    {
         Customer customerToDelete = this.customerRepository.findById(id)
                 .orElseThrow(
                         () -> new ResponseStatusException(
@@ -94,6 +101,10 @@ public class CustomerController {
                                 "No customer matching that id were found")
                 );
         this.customerRepository.delete(customerToDelete);
-        return ResponseEntity.ok(customerToDelete);
+        return ResponseHandler.generateResponse(
+                "Success",
+                HttpStatus.OK,
+                customerToDelete
+        );
     }
 }
