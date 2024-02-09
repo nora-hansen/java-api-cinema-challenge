@@ -5,14 +5,12 @@ import com.booleanuk.api.cinema.models.Screening;
 import com.booleanuk.api.cinema.repositories.MovieRepository;
 import com.booleanuk.api.cinema.repositories.ScreeningRepository;
 import com.booleanuk.api.cinema.responses.ResponseHandler;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/movies")
@@ -80,7 +78,9 @@ public class MovieController {
     @PutMapping("{id}")
     public ResponseEntity<Object> updateMovie(@PathVariable int id, @RequestBody Movie movie)    {
         if(!movie.verifyMovie())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more required fields null");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "One or more required fields null");
 
         Movie movieToUpdate = this.movieRepository.findById(id)
                 .orElseThrow(
@@ -89,6 +89,7 @@ public class MovieController {
                                 "No movie with that id found")
                 );
 
+        // Updates the values of the movie
         movieToUpdate.setTitle(movie.getTitle());
         movieToUpdate.setRating(movie.getRating());
         movieToUpdate.setDescription(movie.getDescription());
@@ -187,18 +188,6 @@ public class MovieController {
         );
     }
 
-    /**
-     * ! This is not in the spec, oops. Oh well, might include later
-     * Updates a screening for the specified movie
-     * Request Body:
-     *  screenNumber: int REQUIRED
-     *  capacity: int REQUIRED
-     *  startsAt: Date REQUIRED
-     *
-     * @param id - ID of movie to add screening to
-     * @param screening - Screening to add
-     * @return Response code signifying success/failure, and screening which was added to the database
-     */
     /*
     @PutMapping("{id}/screenings")
     public ResponseEntity<Screening> updateScreening(@PathVariable int id, @RequestBody Screening screening)    {
@@ -224,5 +213,6 @@ public class MovieController {
                 HttpStatus.CREATED
         );
     }
+    */
 
 }

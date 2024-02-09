@@ -1,8 +1,8 @@
 package com.booleanuk.api.cinema.controllers;
 
 import com.booleanuk.api.cinema.models.Customer;
-import com.booleanuk.api.cinema.models.Movie;
 import com.booleanuk.api.cinema.repositories.CustomerRepository;
+import com.booleanuk.api.cinema.repositories.ScreeningRepository;
 import com.booleanuk.api.cinema.responses.ResponseHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,13 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("customers")
 public class CustomerController {
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private ScreeningRepository screeningRepository;
 
     /**
      * Gets a list of all customers in the database
@@ -92,6 +93,11 @@ public class CustomerController {
         );
     }
 
+    /**
+     * Deletes a customer by the given id
+     * @param id - ID of customer to delete
+     * @return Response indicating success/failure, and the deleted customer
+     */
     @DeleteMapping("{id}")
     public ResponseEntity<Object> deleteCustomer(@PathVariable int id)    {
         Customer customerToDelete = this.customerRepository.findById(id)

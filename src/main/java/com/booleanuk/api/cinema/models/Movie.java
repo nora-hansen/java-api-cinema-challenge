@@ -1,8 +1,6 @@
 package com.booleanuk.api.cinema.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +8,6 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -39,11 +36,21 @@ public class Movie {
     @Column
     private int runtimeMins;
 
+    @Column
     @CreationTimestamp
     private Date createdAt;
+    @PrePersist
+    protected void onCreate()   {
+        updatedAt = createdAt = new Date();
+    }
 
+    @Column
     @UpdateTimestamp
     private Date updatedAt;
+    @PreUpdate
+    protected void onUpdate()   {
+        updatedAt = new Date();
+    }
 
     @OneToMany(mappedBy = "movie")
     @JsonIgnore

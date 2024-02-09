@@ -9,27 +9,18 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 
-/**
- * Class holding information about a customer
- */
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
-@Table(name = "customers")
-public class Customer {
+@Table(name = "tickets")
+public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column
-    private String name;
-
-    @Column
-    private String email;
-
-    @Column
-    private String phone;
+    private int numSeats;
 
     @Column
     @CreationTimestamp
@@ -47,20 +38,27 @@ public class Customer {
         updatedAt = new Date();
     }
 
-    public Customer(
-            String name,
-            String email,
-            String phone
-    )
-    {
-        this.name  = name;
-        this.email = email;
-        this.phone = phone;
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
+    @ManyToOne
+    @JoinColumn(name = "screening_id")
+    private Screening screening;
+
+    public Ticket(
+            Customer customer,
+            Screening screening,
+            int numSeats
+    ) {
+        this.customer  = customer;
+        this.screening = screening;
+        this.numSeats  = numSeats;
     }
 
-    public boolean verifyCustomer() {
-        return this.name != null
-                && this.email != null
-                && this.phone != null;
+    public boolean verifyTicket()   {
+        return this.customer != null
+                && this.screening != null
+                && this.numSeats != 0;
     }
 }
