@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("customers")
@@ -26,7 +25,7 @@ public class CustomerController {
     @GetMapping
     public ResponseEntity<Object> getAllCustomers() {
         return ResponseHandler.generateResponse(
-                "Success",
+                "Successfully returned a list of all the customers",
                 HttpStatus.OK,
                 this.customerRepository.findAll()
         );
@@ -44,14 +43,15 @@ public class CustomerController {
      */
     @PostMapping
     public ResponseEntity<Object> createCustomer(@RequestBody Customer customer)  {
+        // Check that all required fields are present
         if(!customer.verifyCustomer())
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "One or more required fields are null"
-            );
+            return ResponseHandler.generateException(
+                    "Error",
+                    "Could not create a new customer, please check all fields are correct",
+                    HttpStatus.BAD_REQUEST);
         this.customerRepository.save(customer);
         return ResponseHandler.generateResponse(
-                "Success",
+                "Successfully created a new customer",
                 HttpStatus.CREATED,
                 customer
         );
@@ -69,25 +69,21 @@ public class CustomerController {
      */
     @PutMapping("{id}")
     public ResponseEntity<Object> updateCustomer(@PathVariable int id, @RequestBody Customer customer)    {
-        if(!customer.verifyCustomer())
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "One or more required fields are null"
-            );
-
+        // Check the customer id
         Customer customerToUpdate = this.customerRepository.findById(id)
-                .orElseThrow(
-                        () -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "No customer with that id was found")
-                );
-
-        customerToUpdate.setName(customer.getName());
-        customerToUpdate.setEmail(customer.getEmail());
-        customerToUpdate.setPhone(customer.getPhone());
+                .orElse(null);
+        if (customerToUpdate == null)
+            return ResponseHandler.generateException(
+                    "Error",
+                    "No customer with that ID found",
+                    HttpStatus.NOT_FOUND);
+        // Update all the fields of the customer that are present in request body
+        if(customer.getName()  != null) customerToUpdate.setName(customer.getName());
+        if(customer.getEmail() != null) customerToUpdate.setEmail(customer.getEmail());
+        if(customer.getPhone() != null) customerToUpdate.setPhone(customer.getPhone());
 
         return ResponseHandler.generateResponse(
-                "Success",
+                "Successfully updated the specified customer",
                 HttpStatus.CREATED,
                 this.customerRepository.save(customerToUpdate)
         );
@@ -100,15 +96,17 @@ public class CustomerController {
      */
     @DeleteMapping("{id}")
     public ResponseEntity<Object> deleteCustomer(@PathVariable int id)    {
+        // Check the customer id
         Customer customerToDelete = this.customerRepository.findById(id)
-                .orElseThrow(
-                        () -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "No customer matching that id were found")
-                );
+                .orElse(null);
+        if (customerToDelete == null)
+            return ResponseHandler.generateException(
+                    "Error",
+                    "No customer with that ID found",
+                    HttpStatus.NOT_FOUND);
         this.customerRepository.delete(customerToDelete);
         return ResponseHandler.generateResponse(
-                "Success",
+                "Successfully deleted the specified customer",
                 HttpStatus.OK,
                 customerToDelete
         );

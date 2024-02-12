@@ -21,7 +21,7 @@ public class Ticket {
     private int id;
 
     @Column
-    private int numSeats;
+    private Integer numSeats;
 
     @Column
     @CreationTimestamp
@@ -52,7 +52,7 @@ public class Ticket {
     public Ticket(
             Customer customer,
             Screening screening,
-            int numSeats
+            Integer numSeats
     ) {
         this.customer  = customer;
         this.screening = screening;

@@ -2,13 +2,11 @@ package com.booleanuk.api.cinema.models;
 
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
-import jdk.jfr.Timestamp;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;

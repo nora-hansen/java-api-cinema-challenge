@@ -34,7 +34,7 @@ public class Movie {
     private String description;
 
     @Column
-    private int runtimeMins;
+    private Integer runtimeMins;
 
     @Column
     @CreationTimestamp
@@ -60,13 +60,28 @@ public class Movie {
             String title,
             String rating,
             String description,
-            int runtimeMins
+            Integer runtimeMins
     )
     {
         this.title       = title;
         this.rating      = rating;
         this.description = description;
         this.runtimeMins = runtimeMins;
+    }
+
+    public Movie(
+            String title,
+            String rating,
+            String description,
+            int runtimeMins,
+            List<Screening> screenings
+    )
+    {
+        this.title       = title;
+        this.rating      = rating;
+        this.description = description;
+        this.runtimeMins = runtimeMins;
+        this.screenings  = screenings;
     }
 
     public Movie(int id)    {

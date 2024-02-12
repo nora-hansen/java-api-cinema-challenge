@@ -33,7 +33,7 @@ public class MovieController {
     @GetMapping
     public ResponseEntity<Object> getAllMovies()   {
         return ResponseHandler.generateResponse(
-                "Success",
+                "Successfully returned a list of all movies",
                 HttpStatus.OK,
                 this.movieRepository.findAll()
                 );
@@ -46,6 +46,7 @@ public class MovieController {
      *  rating: String REQUIRED
      *  description: String REQUIRED
      *  runtimeMins: int REQUIRED
+     *  screenings: List<Screening> optional
      *
      * @param movie - Movie to add to database
      * @return Response code signifying success/failure, and movie which was added to database
@@ -54,10 +55,14 @@ public class MovieController {
     @PostMapping
     public ResponseEntity<Object> createMovie(@RequestBody Movie movie)  {
         if(!movie.verifyMovie())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more required fields are null");
+            return ResponseHandler.generateException(
+                    "Error",
+                    "Could not create a new movie, please check all fields are correct",
+                    HttpStatus.BAD_REQUEST);
+        this.movieRepository.save(movie);
 
         return ResponseHandler.generateResponse(
-                "Success",
+                "Successfully created a new movie",
                 HttpStatus.CREATED,
                 movie);
     }
@@ -65,10 +70,10 @@ public class MovieController {
     /**
      * Updates an existing movie in the database (if found)
      * Request Body:
-     *  title: String REQUIRED
-     *  rating: String REQUIRED
-     *  description: String REQUIRED
-     *  runtimeMins: int REQUIRED
+     *  title: String optional
+     *  rating: String optional
+     *  description: String optional
+     *  runtimeMins: int optional
      *
      * @param id - Unique identifier of movie to edit (int)
      * @param movie - Updated movie
@@ -77,26 +82,22 @@ public class MovieController {
      */
     @PutMapping("{id}")
     public ResponseEntity<Object> updateMovie(@PathVariable int id, @RequestBody Movie movie)    {
-        if(!movie.verifyMovie())
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "One or more required fields null");
-
         Movie movieToUpdate = this.movieRepository.findById(id)
-                .orElseThrow(
-                        () -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "No movie with that id found")
-                );
+                .orElse(null);
+        if (movieToUpdate == null)
+            return ResponseHandler.generateException(
+                    "Error",
+                    "No movie with that id found",
+                    HttpStatus.NOT_FOUND);
 
         // Updates the values of the movie
-        movieToUpdate.setTitle(movie.getTitle());
-        movieToUpdate.setRating(movie.getRating());
-        movieToUpdate.setDescription(movie.getDescription());
-        movieToUpdate.setRuntimeMins(movie.getRuntimeMins());
+        if(movie.getTitle()  != null)   movieToUpdate.setTitle(movie.getTitle());
+        if(movie.getRating() != null)   movieToUpdate.setRating(movie.getRating());
+        if(movie.getDescription() != null) movieToUpdate.setDescription(movie.getDescription());
+        if(movie.getRuntimeMins() != null) movieToUpdate.setRuntimeMins(movie.getRuntimeMins());
 
         return ResponseHandler.generateResponse(
-                "Success",
+                "Successfully updated the specified movie",
                 HttpStatus.CREATED,
                 movieToUpdate
         );
@@ -110,17 +111,22 @@ public class MovieController {
      */
     @DeleteMapping("{id}")
     public ResponseEntity<Object> deleteMovie(@PathVariable int id)  {
+        // Check movie id
         Movie movieToDelete = this.movieRepository.findById(id)
-                .orElseThrow(
-                        () -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "No movie with that id found"
-                                )
-                );
+                .orElse(null);
+        if (movieToDelete == null)
+            return ResponseHandler.generateException(
+                    "Error",
+                    "No movie with that id found",
+                    HttpStatus.NOT_FOUND);
+        // Delete all the screenings for the movie first due to constraint
+        for(Screening screening : movieToDelete.getScreenings())
+            this.screeningRepository.delete(screening);
+        // Then delete the movie
         this.movieRepository.delete(movieToDelete);
 
         return ResponseHandler.generateResponse(
-                "Success",
+                "Successfully deleted the specified movie",
                 HttpStatus.CREATED,
                 movieToDelete
         );
@@ -137,17 +143,18 @@ public class MovieController {
      */
     @GetMapping("{id}/screenings")
     public ResponseEntity<Object> getOneMovie(@PathVariable int id)  {
+        // Check the movie id
         Movie movie = this.movieRepository.findById(id)
-                .orElseThrow(
-                        () -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Movie with id not found")
-                );
+                .orElse(null);
+        if (movie == null) return ResponseHandler.generateException(
+                "Error",
+                "No movie with that id found",
+                HttpStatus.NOT_FOUND);
 
         return ResponseHandler.generateResponse(
-                "Success",
+                "Successfully returned a list of all screenings for the specified movie",
                 HttpStatus.OK,
-                movie
+                movie.getScreenings()
         );
     }
 
@@ -161,28 +168,32 @@ public class MovieController {
      * @param id - ID of movie to add screening to
      * @param screening - Screening to add
      * @return Response code signifying success/failure, and screening which was added to the database
+     * @see Screening::verifyScreening()
      */
     @PostMapping("{id}/screenings")
     public ResponseEntity<Object> createScreening(@PathVariable int id, @RequestBody Screening screening)    {
+        // Check if screening has all required fields
         if(!screening.verifyScreening())
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "One or more required fields are null"
-            );
-
+            return ResponseHandler.generateException(
+                    "Error",
+                    "Could not create a screening for the specified movie, please check all fields are correct",
+                    HttpStatus.BAD_REQUEST);
+        // Check movie id
         Movie movieToScreen = this.movieRepository.findById(id)
                 .orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No Movie with that field found")
-                );
+                        () -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "No Movie with that field found"
+                        ));
+        // Update values of screening
         screening.setStartsAt(screening.getStartsAt());
         screening.setMovie(movieToScreen);
         movieToScreen.addScreening(screening);
         this.movieRepository.save(movieToScreen);
         this.screeningRepository.save(screening);
-        System.out.println(screening.getStartsAt());
 
         return ResponseHandler.generateResponse(
-                "Success",
+                "Successfully created a new screening for the specified movie",
                 HttpStatus.CREATED,
                 screening
         );
