@@ -20,10 +20,6 @@ public class MovieController {
     @Autowired
     private ScreeningRepository screeningRepository;
 
-    //
-    //  Movie methods
-    //
-
     /**
      * Get all movies in the database
      *
