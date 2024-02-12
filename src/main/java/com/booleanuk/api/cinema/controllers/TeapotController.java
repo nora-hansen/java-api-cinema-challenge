@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("teapot")
 public class TeapotController {
 
+    /**
+     * Brews tea if tea is given
+     * @param teapot - Teapot which has been given liquid contents
+     * @return Response Entity showing results
+     */
     @PostMapping()
     public ResponseEntity<Object> brewTea(@RequestBody Teapot teapot)  {
         if(teapot.getContents().equalsIgnoreCase("Tea"))

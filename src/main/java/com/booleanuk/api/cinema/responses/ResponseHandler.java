@@ -10,6 +10,13 @@ import java.util.Map;
 
 public class ResponseHandler {
 
+    /**
+     * Used when the action was a success
+     * @param status
+     * @param statusCode
+     * @param object
+     * @return
+     */
     public static ResponseEntity<Object> generateResponse(
             String status,
             HttpStatus statusCode,
@@ -21,6 +28,13 @@ public class ResponseHandler {
         return new ResponseEntity<>(responseMap, statusCode);
     }
 
+    /**
+     * Used when the action was a failure
+     * @param status
+     * @param message
+     * @param statusCode
+     * @return
+     */
     @ExceptionHandler({ResponseStatusException.class})
     public static ResponseEntity<Object> generateException(
             String status,
