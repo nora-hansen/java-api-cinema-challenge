@@ -10,6 +10,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 
 /**
@@ -36,7 +39,6 @@ public class Screening {
     private int screenNumber;
 
     @Column
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ssXXX")
     private Date startsAt;
 
     @Column
@@ -61,14 +63,16 @@ public class Screening {
     public Screening(
             Movie movie,
             int screenNumber,
-            Date startsAt,
+            String startsAt,
             int capacity
     )
     {
 
         this.movie        = movie;
         this.screenNumber = screenNumber;
-        this.startsAt     = startsAt;
+        TemporalAccessor ta = DateTimeFormatter.ISO_INSTANT.parse(startsAt);
+        Instant i = Instant.from(ta);
+        this.startsAt = Date.from(i);
         this.capacity     = capacity;
     }
 
