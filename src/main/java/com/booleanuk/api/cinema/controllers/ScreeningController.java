@@ -83,16 +83,15 @@ public class ScreeningController {
         );
     }
 
-
+    /**
+     * Update a screening
+     * @param id - The id of the movie
+     * @param screening - The screening request body to use for updating
+     * @return Response eneity with the results of the request
+     */
     @PutMapping("{id}/screenings")
     public ResponseEntity<Screening> updateScreening(@PathVariable int id, @RequestBody Screening screening)    {
-        /*if(!screening.verifyScreening())
-            return ResponseHandler.generateException(
-                    "Error",
-
-            );
-            */
-
+        // Check screening id
         Screening screeningToUpdate = this.screeningRepository.findById(id)
                 .orElseThrow(
                         () -> new ResponseStatusException(
@@ -100,9 +99,9 @@ public class ScreeningController {
                                 "No screening with that id found"
                         )
                 );
-        screeningToUpdate.setScreenNumber(screening.getScreenNumber());
-        screeningToUpdate.setCapacity(screening.getCapacity());
-        screeningToUpdate.setStartsAt(screening.getStartsAt());
+        if(screening.getScreenNumber() != 0) screeningToUpdate.setScreenNumber(screening.getScreenNumber());
+        if(screening.getCapacity() != 0)     screeningToUpdate.setCapacity(screening.getCapacity());
+        if(screening.getStartsAt() != null)  screeningToUpdate.setStartsAt(screening.getStartsAt());
 
         return new ResponseEntity<>(
                 this.screeningRepository.save(screeningToUpdate),

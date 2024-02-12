@@ -32,6 +32,29 @@ public class CustomerController {
     }
 
     /**
+     * Get one customer
+     * @param id - ID of customer
+     * @return Response Entity with the results of the request
+     */
+    @GetMapping("{id}")
+    public ResponseEntity<Object> getOneCustomer(@PathVariable int id)  {
+        // Check customer id
+        Customer customer = this.customerRepository.findById(id)
+                .orElse(null);
+        if(customer == null)    return ResponseHandler.generateException(
+                "Error",
+                "No customer with that id was found",
+                HttpStatus.NOT_FOUND
+        );
+
+        return ResponseHandler.generateResponse(
+                "Successfully found customer",
+                HttpStatus.OK,
+                customer
+        );
+    }
+
+    /**
      * Add a new customer to the database
      * Request Body:
      *  name: String REQUIRED
