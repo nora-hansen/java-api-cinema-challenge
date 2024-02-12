@@ -87,7 +87,7 @@ public class ScreeningController {
      * Update a screening
      * @param id - The id of the movie
      * @param screening - The screening request body to use for updating
-     * @return Response eneity with the results of the request
+     * @return Response enity with the results of the request
      */
     @PutMapping("{id}/screenings")
     public ResponseEntity<Screening> updateScreening(@PathVariable int id, @RequestBody Screening screening)    {
@@ -108,4 +108,5 @@ public class ScreeningController {
                 HttpStatus.CREATED
         );
     }
+
 }
