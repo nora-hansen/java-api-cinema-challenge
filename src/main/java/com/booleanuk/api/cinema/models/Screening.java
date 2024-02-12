@@ -9,9 +9,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
-import java.util.Date;
 
 /**
  * Class holding information about a screening
@@ -37,25 +37,25 @@ public class Screening {
     private int screenNumber;
 
     @Column
-    private Date startsAt;
+    private ZonedDateTime startsAt;
 
     @Column
     private int capacity;
 
     @Column
     @CreationTimestamp
-    private Date createdAt;
+    private ZonedDateTime createdAt;
     @PrePersist
     protected void onCreate()   {
-        updatedAt = createdAt = new Date();
+        updatedAt = createdAt = ZonedDateTime.now();
     }
 
     @Column
     @UpdateTimestamp
-    private Date updatedAt;
+    private ZonedDateTime updatedAt;
     @PreUpdate
     protected void onUpdate()   {
-        updatedAt = new Date();
+        updatedAt = ZonedDateTime.now();
     }
 
     public Screening(
@@ -68,9 +68,9 @@ public class Screening {
 
         this.movie        = movie;
         this.screenNumber = screenNumber;
-        TemporalAccessor ta = DateTimeFormatter.ISO_INSTANT.parse(startsAt);
+        TemporalAccessor ta = DateTimeFormatter.ISO_ZONED_DATE_TIME.parse(startsAt);
         Instant i = Instant.from(ta);
-        this.startsAt = Date.from(i);
+        this.startsAt = ZonedDateTime.from(i);
         this.capacity     = capacity;
     }
 

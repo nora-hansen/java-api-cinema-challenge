@@ -8,7 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -38,18 +38,18 @@ public class Movie {
 
     @Column
     @CreationTimestamp
-    private Date createdAt;
+    private ZonedDateTime createdAt;
     @PrePersist
     protected void onCreate()   {
-        updatedAt = createdAt = new Date();
+        updatedAt = createdAt = ZonedDateTime.now();
     }
 
     @Column
     @UpdateTimestamp
-    private Date updatedAt;
+    private ZonedDateTime updatedAt;
     @PreUpdate
     protected void onUpdate()   {
-        updatedAt = new Date();
+        updatedAt = ZonedDateTime.now();
     }
 
     @OneToMany(mappedBy = "movie")
