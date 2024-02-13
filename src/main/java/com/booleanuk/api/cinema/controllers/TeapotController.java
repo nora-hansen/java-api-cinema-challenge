@@ -1,7 +1,9 @@
 package com.booleanuk.api.cinema.controllers;
 
 import com.booleanuk.api.cinema.models.Teapot;
-import com.booleanuk.api.cinema.responses.ResponseHandler;
+import com.booleanuk.api.cinema.responses.ErrorResponse;
+import com.booleanuk.api.cinema.responses.Response;
+import com.booleanuk.api.cinema.responses.TeapotResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,21 +21,24 @@ public class TeapotController {
      * @return Response Entity showing results
      */
     @PostMapping()
-    public ResponseEntity<Object> brewTea(@RequestBody Teapot teapot)  {
+    public ResponseEntity<Response<?>> brewTea(@RequestBody Teapot teapot)  {
         if(teapot.getContents().equalsIgnoreCase("Tea"))
-            return ResponseHandler.generateResponse("Successfully brewed tea",
-                    HttpStatus.OK,
-                    teapot);
+        {
+            TeapotResponse teapotResponse = new TeapotResponse();
+            teapotResponse.set("Successfully brewed tea", teapot);
+            return ResponseEntity.ok(teapotResponse);
+        }
         else if(teapot.getContents().equalsIgnoreCase("Coffee"))
-            return ResponseHandler.generateException(
-                    "Error",
-                    "Can't brew coffee, I am a teapot",
-                    HttpStatus.I_AM_A_TEAPOT
-            );
-        else return ResponseHandler.generateException(
-                "Error",
-                    "I don't know what this is, but I don't want it. I want tea",
-                    HttpStatus.I_AM_A_TEAPOT
-            );
+        {
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.set("Can't brew coffee, I am a teapot");
+            return new ResponseEntity<>(errorResponse, HttpStatus.I_AM_A_TEAPOT);
+        }
+        else
+        {
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.set("I don't know what this is, but I don't want it. I want tea");
+            return new ResponseEntity<>(errorResponse, HttpStatus.I_AM_A_TEAPOT);
+        }
     }
 }

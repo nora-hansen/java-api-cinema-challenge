@@ -59,9 +59,7 @@ public class Ticket {
         this.numSeats  = numSeats;
     }
 
-    public Ticket(
-            int numSeats
-    )   {
+    public Ticket(int numSeats)   {
         this.numSeats = numSeats;
     }
 

@@ -15,8 +15,6 @@ import java.time.temporal.TemporalAccessor;
 
 /**
  * Class holding information about a screening
- * TODO
- *  Fix returned date format
  */
 @NoArgsConstructor
 @Getter
@@ -65,13 +63,12 @@ public class Screening {
             int capacity
     )
     {
-
-        this.movie        = movie;
-        this.screenNumber = screenNumber;
+        this.movie          = movie;
+        this.screenNumber   = screenNumber;
         TemporalAccessor ta = DateTimeFormatter.ISO_ZONED_DATE_TIME.parse(startsAt);
-        Instant i = Instant.from(ta);
-        this.startsAt = ZonedDateTime.from(i);
-        this.capacity     = capacity;
+        Instant i           = Instant.from(ta);
+        this.startsAt       = ZonedDateTime.from(i);
+        this.capacity       = capacity;
     }
 
     public boolean verifyScreening()    {

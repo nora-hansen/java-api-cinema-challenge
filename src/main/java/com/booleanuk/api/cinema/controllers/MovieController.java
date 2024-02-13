@@ -4,7 +4,7 @@ import com.booleanuk.api.cinema.models.Movie;
 import com.booleanuk.api.cinema.models.Screening;
 import com.booleanuk.api.cinema.repositories.MovieRepository;
 import com.booleanuk.api.cinema.repositories.ScreeningRepository;
-import com.booleanuk.api.cinema.responses.ResponseHandler;
+import com.booleanuk.api.cinema.responses.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +26,10 @@ public class MovieController {
      * @return List of Movie objects
      */
     @GetMapping
-    public ResponseEntity<Object> getAllMovies()   {
-        return ResponseHandler.generateResponse(
-                "Successfully returned a list of all movies",
-                HttpStatus.OK,
-                this.movieRepository.findAll()
-                );
+    public ResponseEntity<Response<?>> getAllMovies()   {
+        MovieListResponse movieListResponse = new MovieListResponse();
+        movieListResponse.set("Successfully returned a list of all movies", this.movieRepository.findAll());
+        return ResponseEntity.ok(movieListResponse);
     }
 
     /**
@@ -48,18 +46,18 @@ public class MovieController {
      * @see Movie::verifyMovie()
      */
     @PostMapping
-    public ResponseEntity<Object> createMovie(@RequestBody Movie movie)  {
+    public ResponseEntity<Response<?>> createMovie(@RequestBody Movie movie)  {
         if(!movie.verifyMovie())
-            return ResponseHandler.generateException(
-                    "Error",
-                    "Could not create a new movie, please check all fields are correct",
-                    HttpStatus.BAD_REQUEST);
-        this.movieRepository.save(movie);
+        {
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.set("Could not create a new movie, please check all fields are correct");
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
 
-        return ResponseHandler.generateResponse(
-                "Successfully created a new movie",
-                HttpStatus.CREATED,
-                movie);
+        this.movieRepository.save(movie);
+        MovieResponse movieResponse = new MovieResponse();
+        movieResponse.set("Successfully created a new movie", movie);
+        return new ResponseEntity<>(movieResponse, HttpStatus.CREATED);
     }
 
     /**
@@ -76,14 +74,15 @@ public class MovieController {
      * @see Movie::verifyMovie()
      */
     @PutMapping("{id}")
-    public ResponseEntity<Object> updateMovie(@PathVariable int id, @RequestBody Movie movie)    {
+    public ResponseEntity<Response<?>> updateMovie(@PathVariable int id, @RequestBody Movie movie)    {
         Movie movieToUpdate = this.movieRepository.findById(id)
                 .orElse(null);
         if (movieToUpdate == null)
-            return ResponseHandler.generateException(
-                    "Error",
-                    "No movie with that id found",
-                    HttpStatus.NOT_FOUND);
+        {
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.set("No movie with that id found");
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
 
         // Updates the values of the movie
         if(movie.getTitle()  != null)   movieToUpdate.setTitle(movie.getTitle());
@@ -91,11 +90,9 @@ public class MovieController {
         if(movie.getDescription() != null) movieToUpdate.setDescription(movie.getDescription());
         if(movie.getRuntimeMins() != null) movieToUpdate.setRuntimeMins(movie.getRuntimeMins());
 
-        return ResponseHandler.generateResponse(
-                "Successfully updated the specified movie",
-                HttpStatus.CREATED,
-                movieToUpdate
-        );
+        MovieResponse movieResponse = new MovieResponse();
+        movieResponse.set("Successfully updated the specified movie", movieToUpdate);
+        return new ResponseEntity<>(movieResponse, HttpStatus.CREATED);
     }
 
     /**
@@ -105,26 +102,25 @@ public class MovieController {
      * @return Response code signifying success/failure, and movie which was deleted
      */
     @DeleteMapping("{id}")
-    public ResponseEntity<Object> deleteMovie(@PathVariable int id)  {
+    public ResponseEntity<Response<?>> deleteMovie(@PathVariable int id)  {
         // Check movie id
         Movie movieToDelete = this.movieRepository.findById(id)
                 .orElse(null);
         if (movieToDelete == null)
-            return ResponseHandler.generateException(
-                    "Error",
-                    "No movie with that id found",
-                    HttpStatus.NOT_FOUND);
+        {
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.set("No movie with that id found");
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
         // Delete all the screenings for the movie first due to constraint
         for(Screening screening : movieToDelete.getScreenings())
             this.screeningRepository.delete(screening);
         // Then delete the movie
         this.movieRepository.delete(movieToDelete);
 
-        return ResponseHandler.generateResponse(
-                "Successfully deleted the specified movie",
-                HttpStatus.CREATED,
-                movieToDelete
-        );
+        MovieResponse movieResponse = new MovieResponse();
+        movieResponse.set("Successfully deleted the specified movie", movieToDelete);
+        return ResponseEntity.ok(movieResponse);
     }
-
 }
