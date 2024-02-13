@@ -31,14 +31,13 @@ public class Screening {
     @JsonIgnore
     private Movie movie;
 
-    @Column
-    private int screenNumber;
+    @ManyToOne
+    @JoinColumn(name = "screen_id")
+    @JsonIgnoreProperties(value = {"id", "premium"})
+    private Screen screen;
 
     @Column
     private ZonedDateTime startsAt;
-
-    @Column
-    private int capacity;
 
     @Column
     @CreationTimestamp
@@ -58,22 +57,19 @@ public class Screening {
 
     public Screening(
             Movie movie,
-            int screenNumber,
+            Screen screen,
             String startsAt,
             int capacity
     )
     {
         this.movie          = movie;
-        this.screenNumber   = screenNumber;
+        this.screen         = screen;
         TemporalAccessor ta = DateTimeFormatter.ISO_ZONED_DATE_TIME.parse(startsAt);
         Instant i           = Instant.from(ta);
         this.startsAt       = ZonedDateTime.from(i);
-        this.capacity       = capacity;
     }
 
     public boolean verifyScreening()    {
-        return this.getScreenNumber() != 0
-                && this.getCapacity() != 0
-                && this.getStartsAt() != null;
+        return this.getStartsAt() != null;
     }
 }

@@ -1,8 +1,10 @@
 package com.booleanuk.api.cinema.controllers;
 
 import com.booleanuk.api.cinema.models.Movie;
+import com.booleanuk.api.cinema.models.Screen;
 import com.booleanuk.api.cinema.models.Screening;
 import com.booleanuk.api.cinema.repositories.MovieRepository;
+import com.booleanuk.api.cinema.repositories.ScreenRepository;
 import com.booleanuk.api.cinema.repositories.ScreeningRepository;
 import com.booleanuk.api.cinema.responses.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ public class ScreeningController {
 
     @Autowired
     private ScreeningRepository screeningRepository;
+
+    @Autowired
+    private ScreenRepository screenRepository;
 
     /**
      * Gets all screenings for the specified movie
@@ -51,13 +56,18 @@ public class ScreeningController {
      *  capacity: int REQUIRED
      *  startsAt: Date REQUIRED
      *
-     * @param id - ID of movie to add screening to
+     * @param movieId - ID of movie to add screening to
+     * @param screenId - ID of screen to show screening at
      * @param screening - Screening to add
      * @return Response code signifying success/failure, and screening which was added to the database
      * @see Screening ::verifyScreening()
      */
-    @PostMapping("{id}/screenings")
-    public ResponseEntity<Object> createScreening(@PathVariable int id, @RequestBody Screening screening)    {
+    @PostMapping("{movieId}/screens/{screenId}/screenings")
+    public ResponseEntity<Object> createScreening(
+            @PathVariable int movieId,
+            @PathVariable int screenId,
+            @RequestBody Screening screening
+    )    {
         // Check if screening has all required fields
         if(!screening.verifyScreening())
         {
@@ -69,8 +79,7 @@ public class ScreeningController {
         }
 
         // Check movie id
-        Movie movieToScreen = this.movieRepository.findById(id)
-                .orElse(null);
+        Movie movieToScreen = this.movieRepository.findById(movieId).orElse(null);
         if(movieToScreen == null)
         {
             ErrorResponse errorResponse = new ErrorResponse();
@@ -78,10 +87,19 @@ public class ScreeningController {
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
 
+        Screen screeningScreen = this.screenRepository.findById(screenId).orElse(null);
+        if(screeningScreen == null)
+        {
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.set("No screen with that id found");
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
         // Update values of screening
-        // screening.setStartsAt(screening.getStartsAt()); Why?
         screening.setMovie(movieToScreen);
+        screening.setScreen(screeningScreen);
         movieToScreen.addScreening(screening);
+        screeningScreen.addScreening(screening);
         this.movieRepository.save(movieToScreen);
         this.screeningRepository.save(screening);
 
@@ -99,8 +117,7 @@ public class ScreeningController {
     @PutMapping("{id}/screenings")
     public ResponseEntity<Response<?>> updateScreening(@PathVariable int id, @RequestBody Screening screening)    {
         // Check screening id
-        Screening screeningToUpdate = this.screeningRepository.findById(id)
-                .orElse(null);
+        Screening screeningToUpdate = this.screeningRepository.findById(id).orElse(null);
         if(screeningToUpdate == null)
         {
             ErrorResponse errorResponse = new ErrorResponse();
@@ -108,8 +125,6 @@ public class ScreeningController {
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
 
-        if(screening.getScreenNumber() != 0) screeningToUpdate.setScreenNumber(screening.getScreenNumber());
-        if(screening.getCapacity() != 0)     screeningToUpdate.setCapacity(screening.getCapacity());
         if(screening.getStartsAt() != null)  screeningToUpdate.setStartsAt(screening.getStartsAt());
 
         ScreeningResponse screeningResponse = new ScreeningResponse();
