@@ -6,7 +6,6 @@ import com.booleanuk.api.cinema.responses.ErrorResponse;
 import com.booleanuk.api.cinema.responses.Response;
 import com.booleanuk.api.cinema.responses.ScreenListResponse;
 import com.booleanuk.api.cinema.responses.ScreenResponse;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
